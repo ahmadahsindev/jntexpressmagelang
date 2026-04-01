@@ -26,7 +26,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="id" className={cn("h-full", "font-sans", geist.variable)}>
+    <html lang="id" className={cn("h-full", "font-sans", geist.variable)} suppressHydrationWarning>
       <body className={`${inter.variable} ${manrope.variable} h-full flex flex-col font-sans antialiased`}>
         {children}
       </body>
