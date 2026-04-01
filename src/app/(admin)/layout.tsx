@@ -1,52 +1,58 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { LayoutDashboard, Package, LogOut, Settings } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { auth } from "@/lib/firebase/config";
+import { onAuthStateChanged } from "firebase/auth";
+import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/layout/AppSidebar";
+import { Separator } from "@/components/ui/separator";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
 
-  const navItems = [
-    { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-    { name: "Manajemen Resi", href: "/dashboard/receipts", icon: Package },
-    { name: "Pengaturan CMS", href: "/dashboard/cms", icon: Settings },
-  ];
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        router.push("/login");
+      } else {
+        setLoading(false);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [router]);
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-surface-container-low space-y-6">
+        <div className="relative w-12 h-12">
+          <div className="absolute inset-0 border-4 border-primary/20 rounded-full"></div>
+          <div className="absolute inset-0 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+        </div>
+        <div className="flex flex-col items-center space-y-2">
+          <p className="text-on-surface-variant text-sm font-medium animate-pulse uppercase tracking-[0.2em]">Memuat Data...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex bg-surface-container-low min-h-screen">
-      {/* Sidebar */}
-      <aside className="w-64 bg-surface-container-lowest border-r border-border h-screen sticky top-0 flex flex-col tonal-shift-bottom">
-        <div className="p-6">
-          <h2 className="text-2xl font-black font-headline text-primary tracking-tight">J&T Admin</h2>
-          <p className="text-xs text-on-surface-variant mt-1">Magelang Control Panel</p>
+    <SidebarProvider>
+      <AppSidebar />
+      <SidebarInset className="bg-surface-container-low min-h-screen">
+        <header className="flex sticky top-0 bg-white/80 dark:bg-black/80 backdrop-blur-md h-16 shrink-0 items-center gap-2 border-b border-border px-4 z-10">
+          <SidebarTrigger className="-ml-1" />
+          <Separator orientation="vertical" className="mr-2 h-4" />
+          <div className="flex-1">
+             <span className="text-xs font-bold text-on-surface-variant uppercase tracking-widest block md:hidden">Magelang CP</span>
+          </div>
+        </header>
+        <div className="p-4 md:p-8">
+          {children}
         </div>
-        <nav className="flex-1 px-4 space-y-2 mt-4">
-          {navItems.map((item) => {
-            const isActive = pathname === item.href;
-            const Icon = item.icon;
-            return (
-              <Link key={item.name} href={item.href} className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-bold transition-colors ${isActive ? 'bg-primary/10 text-primary' : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'}`}>
-                <Icon size={18} />
-                {item.name}
-              </Link>
-            );
-          })}
-        </nav>
-        <div className="p-4 border-t border-border mt-auto">
-          <Link href="/">
-            <button className="flex items-center gap-3 px-3 py-2.5 w-full rounded-md text-sm font-bold text-destructive hover:bg-destructive/10 transition-colors">
-              <LogOut size={18} />
-              Keluar
-            </button>
-          </Link>
-        </div>
-      </aside>
-
-      {/* Main Content */}
-      <main className="flex-1 p-8">
-        {children}
-      </main>
-    </div>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }

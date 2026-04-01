@@ -13,9 +13,10 @@ Membangun platform *company profile* dinamis yang memungkinkan administrator men
 | **Styling** | Tailwind CSS v4 |
 | **Database** | Firebase Firestore |
 | **Authentication** | Firebase Auth (Admin Only) |
-| **Storage** | Firebase Storage (Untuk gambar blog, galeri, & konten) |
-| **State Management** | React Context API atau Zustand |
+| **Storage / Media** | Cloudinary (Untuk gambar blog, galeri, & konten) |
+| **State Management** | Zustand |
 | **Validation** | Zod & React Hook Form |
+| **Rich Text Editor** | Tiptap |
 
 ---
 
@@ -111,7 +112,7 @@ Digunakan untuk membuat website menjadi dinamis.
 ### **7. Keamanan & Performa**
 * **Firestore Security Rules:** Memastikan hanya admin yang bisa menulis (`write`) data, sementara publik hanya bisa membaca (`read`) data resi tertentu.
 * **Server-Side Rendering (SSR):** Menggunakan fitur Next.js untuk SEO yang lebih baik pada halaman blog.
-* **Image Optimization:** Menggunakan komponen `next/image` untuk memuat gambar secara *lazy load* dan efisien.
+* **Image Optimization:** TIDAK MENGGUNAKAN komponen `next/image`. Semua gambar di aplikasi wajib dimuat menggunakan native HTML label `<img>` dan disimpan menggunakan Cloudinary agar fleksibel pada Rich Text (*Tiptap*) maupun statis.
 
 ---
 
