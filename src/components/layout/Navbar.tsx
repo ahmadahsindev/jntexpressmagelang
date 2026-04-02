@@ -33,8 +33,8 @@ export function Navbar() {
           <Link href="/#services" className="text-slate-700 dark:text-slate-300 font-headline text-sm font-bold tracking-tight hover:text-primary transition-colors duration-300">LAYANAN</Link>
           <Link href="/#features" className="text-slate-700 dark:text-slate-300 font-headline text-sm font-bold tracking-tight hover:text-primary transition-colors duration-300">KEUNGGULAN</Link>
           <Link href="/#gallery" className="text-slate-700 dark:text-slate-300 font-headline text-sm font-bold tracking-tight hover:text-primary transition-colors duration-300">GALERI</Link>
-          {/* <Link href="/#blog" className="text-slate-700 dark:text-slate-300 font-headline text-sm font-bold tracking-tight hover:text-primary transition-colors duration-300">BLOG</Link>
-          <Link href="/#contact" className="text-slate-700 dark:text-slate-300 font-headline text-sm font-bold tracking-tight hover:text-primary transition-colors duration-300">KONTAK</Link>
+          <Link href="/blog" className={getLinkClass("/blog", false)}>BLOG</Link>
+          {/* <Link href="/#contact" className="text-slate-700 dark:text-slate-300 font-headline text-sm font-bold tracking-tight hover:text-primary transition-colors duration-300">KONTAK</Link>
         </div>
         <div className="flex items-center gap-4">
           <Link href="/login" className="text-sm font-bold text-slate-700 hover:text-primary hidden md:block">Admin Login</Link> */}

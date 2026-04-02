@@ -24,8 +24,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="id" className="min-h-screen scroll-smooth" data-scroll-behavior="smooth">
-      <body className={`${inter.variable} ${manrope.variable} min-h-screen flex flex-col font-sans antialiased`}>
+    <html lang="id" className="min-h-screen scroll-smooth" data-scroll-behavior="smooth" suppressHydrationWarning>
+      <body className={`${inter.variable} ${manrope.variable} min-h-screen flex flex-col font-sans antialiased`} suppressHydrationWarning>
         {children}
         <Toaster position="top-right" richColors />
       </body>
