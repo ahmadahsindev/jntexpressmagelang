@@ -6,7 +6,7 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import { toast } from "sonner";
 import { Save } from "lucide-react";
 
-export default function GlobalSettingsPage() {
+export default function ContactsPage() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
@@ -16,9 +16,9 @@ export default function GlobalSettingsPage() {
   const [isFetching, setIsFetching] = useState(true);
 
   useEffect(() => {
-    async function fetchSettings() {
+    async function fetchContacts() {
       try {
-        const docRef = doc(db, "content", "settings");
+        const docRef = doc(db, "content", "contacts");
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
           const data = docSnap.data();
@@ -34,7 +34,7 @@ export default function GlobalSettingsPage() {
         setIsFetching(false);
       }
     }
-    fetchSettings();
+    fetchContacts();
   }, []);
 
   const handleSave = async (e: React.FormEvent) => {
@@ -42,7 +42,7 @@ export default function GlobalSettingsPage() {
     setIsLoading(true);
     const toastId = toast.loading("Menyimpan pengaturan global...");
     try {
-      const docRef = doc(db, "content", "settings");
+      const docRef = doc(db, "content", "contacts");
       await setDoc(docRef, {
         email,
         phone,
@@ -151,7 +151,7 @@ export default function GlobalSettingsPage() {
             className="kinetic-authority-gradient text-white px-8 py-3 rounded-md font-bold tracking-wide shadow-md flex items-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-50"
           >
             <Save size={18} />
-            {isLoading ? "Menyimpan..." : "Simpan Pengaturan"}
+            {isLoading ? "Menyimpan..." : "Simpan Kontak"}
           </button>
         </div>
       </form>

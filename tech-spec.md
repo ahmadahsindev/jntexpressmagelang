@@ -45,32 +45,39 @@ Membangun platform *company profile* dinamis yang memungkinkan administrator men
 Digunakan untuk menyimpan data pengiriman.
 ```json
 {
-  "receiptNumber": "JT123456789",
+  "receiptNumber": "37844537344611",
+  "date": "2026-03-28T13:45:58Z",
+  "origin": "MAGELANG",
+  "destination": "KAB KARAWANG",
+  "quantity": 1,
+  "weight": 1,
+  "volumeWeight": 1,
   "sender": {
-    "name": "Nama Pengirim",
-    "address": "Alamat Lengkap",
-    "phone": "0812..."
+    "name": "SUARDI",
+    "address": "TUKANGAN KULON 56 RT.002 RW.009 KEL KEMIRIREJO KECAMATAN MAGELANG TENGAH",
+    "phone": "-"
   },
   "receiver": {
-    "name": "Nama Penerima",
-    "address": "Alamat Lengkap",
-    "phone": "0851..."
+    "name": "HUSEN IBRAHIM",
+    "phone": "0851 6120 3039",
+    "email": "-@gmail.com",
+    "address": "KP BAKAN EMPANG RT002/RW010 KEC KOTA BARU KEL PUCUNG KAB KARANG ID 41374"
   },
   "details": {
-    "itemType": "Elektronik",
-    "weight": 1,
-    "service": "Express",
-    "shippingCost": 20000
+    "itemType": "1 HP IPHONE 16 PROMAX 256 GB (IBOX) DESERT TITANIUM ON GARANSI",
+    "shippingType": "HP",
+    "via": "EXPRESS",
+    "shippingCost": 205710
   },
   "statusHistory": [
     {
-      "status": "Paket telah diterima di Drop Point Magelang",
-      "timestamp": "2026-04-01T10:00:00Z",
-      "location": "Magelang"
+      "status": "ON PROSES KIRIM",
+      "timestamp": "2026-03-28T13:45:58Z",
+      "location": "Jakarta"
     }
   ],
-  "currentStatus": "On Process",
-  "createdAt": "2026-03-31T22:31:00Z"
+  "currentStatus": "ON PROSES KIRIM",
+  "createdAt": "2026-03-28T13:45:58Z"
 }
 ```
 
@@ -86,7 +93,7 @@ Digunakan untuk membuat website menjadi dinamis.
 1.  **Input:** User memasukkan nomor resi pada kolom pencarian.
 2.  **Query:** Next.js melakukan *fetch* ke Firestore dengan query `where("receiptNumber", "==", input)`.
 3.  **Response:**
-    * Jika ditemukan: Menampilkan detail pengirim, penerima, dan urutan `statusHistory` dari yang terbaru (menggunakan fungsi `.sort()`).
+    * Jika ditemukan: Menampilkan detail resi (Pengirim, Penerima, Detail Paket) beserta urutan `statusHistory` menggunakan **Vertical Stepper Timeline UI** dari yang terbaru. Terdapat ekstensi fitur: tombol "Cetak Resi" (menggunakan `react-to-print`) dan "Download" untuk mencetak dokumen format J&T Express Magelang resmi (menyertakan Barcode dinamis via `react-barcode`).
     * Jika tidak ditemukan: Menampilkan pesan "Nomor Resi Tidak Ditemukan".
 
 

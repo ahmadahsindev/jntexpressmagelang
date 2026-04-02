@@ -6,7 +6,7 @@ import { Mail, MapPin, ArrowUp } from "lucide-react";
 import { db } from "@/lib/firebase/config";
 import { doc, getDoc } from "firebase/firestore";
 
-interface SettingsData {
+interface ContactsData {
   address: string;
   email: string;
   phone: string;
@@ -15,20 +15,20 @@ interface SettingsData {
 }
 
 export function Footer() {
-  const [settings, setSettings] = useState<SettingsData | null>(null);
+  const [contacts, setContacts] = useState<ContactsData | null>(null);
 
   useEffect(() => {
-    async function loadSettings() {
+    async function loadContacts() {
       try {
-        const snap = await getDoc(doc(db, "content", "settings"));
+        const snap = await getDoc(doc(db, "content", "contacts"));
         if (snap.exists()) {
-          setSettings(snap.data() as SettingsData);
+          setContacts(snap.data() as ContactsData);
         }
       } catch (err) {
-        console.error("Failed to fetch settings", err);
+        console.error("Failed to fetch contacts", err);
       }
     }
-    loadSettings();
+    loadContacts();
   }, []);
 
   const scrollToTop = () => {
@@ -51,15 +51,15 @@ export function Footer() {
             Menghubungkan Magelang dengan seluruh penjuru Nusantara melalui layanan ekspedisi kelas dunia.
           </p> */}
           <div className="mt-8 flex gap-4">
-            {settings?.facebook && (
-               <a href={settings.facebook} target="_blank" rel="noreferrer" className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-all" title="Facebook">
+            {contacts?.facebook && (
+               <a href={contacts.facebook} target="_blank" rel="noreferrer" className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-all" title="Facebook">
                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
                  </svg>
                </a>
             )}
-            {settings?.instagram && (
-               <a href={settings.instagram} target="_blank" rel="noreferrer" className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-all" title="Instagram">
+            {contacts?.instagram && (
+               <a href={contacts.instagram} target="_blank" rel="noreferrer" className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-all" title="Instagram">
                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
@@ -67,8 +67,8 @@ export function Footer() {
                  </svg>
                </a>
             )}
-            {settings?.email && (
-               <a href={`mailto:${settings.email}`} className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-all" title="Email">
+            {contacts?.email && (
+               <a href={`mailto:${contacts.email}`} className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-all" title="Email">
                  <Mail size={16} />
                </a>
             )}
@@ -77,11 +77,11 @@ export function Footer() {
 
         <div>
           <h4 className="text-lg font-bold mb-6 font-headline">Kontak Terpusat</h4>
-          {settings ? (
+          {contacts ? (
             <div className="text-white/80 font-inter font-light leading-relaxed mb-4 text-sm space-y-2">
-              <p><strong>Alamat:</strong> {settings.address}</p>
-              <p><strong>Phone:</strong> {settings.phone}</p>
-              <p><strong>Email:</strong> {settings.email}</p>
+              <p><strong>Alamat:</strong> {contacts.address}</p>
+              <p><strong>Phone:</strong> {contacts.phone}</p>
+              <p><strong>Email:</strong> {contacts.email}</p>
             </div>
           ) : (
              <div className="text-white/80 font-inter font-light leading-relaxed mb-4 text-sm space-y-2">

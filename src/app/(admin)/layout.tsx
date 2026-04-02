@@ -41,7 +41,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <SidebarProvider>
       <AppSidebar />
-      <SidebarInset className="bg-surface-container-low min-h-screen">
+      <SidebarInset className="bg-surface-container-low flex flex-col min-h-screen w-full">
         <header className="flex sticky top-0 bg-white/80 dark:bg-black/80 backdrop-blur-md h-16 shrink-0 items-center gap-2 border-b border-border px-4 z-10">
           <SidebarTrigger className="-ml-1" />
           <Separator orientation="vertical" className="mr-2 h-4" />
@@ -49,7 +49,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
              <span className="text-xs font-bold text-on-surface-variant uppercase tracking-widest block md:hidden">Magelang CP</span>
           </div>
         </header>
-        <div className="p-4 md:p-8">
+        <div className="p-4 md:p-8 flex-1">
           {children}
         </div>
       </SidebarInset>

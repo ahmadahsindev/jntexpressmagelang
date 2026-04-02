@@ -32,11 +32,11 @@ export function AppSidebar() {
 
   const mainNav = [
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+    { name: "Manajemen Resi", href: "/dashboard/resi", icon: Package },
   ];
 
   const cmsNav = [
-    { name: "Resi Pengiriman", href: "/dashboard/cms/receipts", icon: Package },
-    { name: "Home Page", href: "/dashboard/cms/home", icon: Home },
+    { name: "Home", href: "/dashboard/cms/home", icon: Home },
     { name: "Tentang Kami", href: "/dashboard/cms/about", icon: Info },
     { name: "Layanan", href: "/dashboard/cms/services", icon: Package },
     { name: "Keunggulan", href: "/dashboard/cms/features", icon: Star },
