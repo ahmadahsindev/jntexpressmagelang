@@ -88,7 +88,7 @@ export default function ResiManagementPage() {
   );
 
   return (
-    <div className="p-8 max-w-7xl mx-auto space-y-8">
+    <div className="px-4 md:px-6 py-8 max-w-7xl mx-auto space-y-8">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-border pb-6">
         <div>
           <h1 className="text-3xl font-black font-headline text-on-surface">Manajemen Resi</h1>

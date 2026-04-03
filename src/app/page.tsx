@@ -36,7 +36,7 @@ export default function Home() {
 
   return (
     <PublicLayout>
-      <section className="relative h-[870px] flex items-center overflow-hidden">
+      <section className="relative min-h-screen 2xl:h-[870px] flex items-center overflow-hidden">
         <div className="absolute inset-0 z-0 bg-surface-container-highest">
           {content?.bannerUrl && (
             <img 

@@ -1,6 +1,6 @@
 export default function AdminDashboardPage() {
   return (
-    <div className="space-y-6">
+    <div className="px-4 md:px-6 py-8 max-w-7xl mx-auto space-y-8">
       <h1 className="text-3xl font-black font-headline text-on-surface">Overview</h1>
       <p className="text-on-surface-variant">Ringkasan aktivitas dan status resi pengiriman J&T Magelang.</p>
 
