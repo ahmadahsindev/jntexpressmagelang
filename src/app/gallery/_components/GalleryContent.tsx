@@ -26,16 +26,18 @@ export default function GalleryContent() {
 
   useEffect(() => {
     const fetchData = async () => {
+      // Fetch independently so one failure doesn't break the other
       try {
-        const [settingsSnap, querySnapshot] = await Promise.all([
-          getDoc(doc(db, "content", "gallery_page")),
-          getDocs(query(collection(db, "gallery"), orderBy("publishedAt", "desc")))
-        ]);
-
+        const settingsSnap = await getDoc(doc(db, "content", "gallery_page"));
         if (settingsSnap.exists()) {
           setSettings(settingsSnap.data() as GallerySettings);
         }
+      } catch (error) {
+        console.error("Gagal mengambil pengaturan galeri", error);
+      }
 
+      try {
+        const querySnapshot = await getDocs(query(collection(db, "gallery"), orderBy("publishedAt", "desc")));
         const data = querySnapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data()
@@ -43,9 +45,9 @@ export default function GalleryContent() {
         setGalleries(data);
       } catch (error) {
         console.error("Gagal mengambil data galeri", error);
-      } finally {
-        setIsLoading(false);
       }
+
+      setIsLoading(false);
     };
     
     fetchData();

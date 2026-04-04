@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import HomeContent from "./_components/HomeContent";
+import HomePageContent from "./_components/HomeContent";
 import {
   LocalBusinessJsonLd,
   WebSiteJsonLd,
@@ -44,7 +44,7 @@ export default function Home() {
       <BreadcrumbJsonLd
         items={[{ name: "Beranda", url: "https://jntexpressmagelang.com" }]}
       />
-      <HomeContent />
+      <HomePageContent />
     </>
   );
 }

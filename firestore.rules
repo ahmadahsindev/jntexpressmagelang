@@ -2,19 +2,37 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Only authenticated admin users can write
-    // Anyone can read content and receipts
-    match /receipts/{receiptId} {
-      allow read: if true;
-      allow write: if request.auth != null;
-    }
-    
+    // Content (about, home, features, contacts, dll) - public read
     match /content/{document} {
       allow read: if true;
       allow write: if request.auth != null;
     }
     
-    // Default fallback
+    // Services - public read
+    match /services/{document} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    
+    // Gallery - public read
+    match /gallery/{document} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    
+    // Blogs - public read
+    match /blogs/{document} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    
+    // Receipts - public read (untuk cek resi)
+    match /receipts/{document} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    
+    // Default fallback for any other collections
     match /{document=**} {
       allow read, write: if request.auth != null;
     }

@@ -48,7 +48,7 @@ interface BlogData {
   publishedAt: string;
 }
 
-export default function HomeContent() {
+export default function HomePageContent() {
   const [content, setContent] = useState<HomeContent | null>(null);
   const [about, setAbout] = useState<AboutContent | null>(null);
   const [services, setServices] = useState<ServiceItem[]>([]);
@@ -60,35 +60,50 @@ export default function HomeContent() {
 
   useEffect(() => {
     async function loadData() {
+      // Fetch each data source independently so one failure doesn't break others
       try {
-        const [
-          homeSnap,
-          aboutSnap,
-          servicesSnap,
-          featuresSnap,
-          galleriesSnap,
-          blogsSnap
-        ] = await Promise.all([
-          getDoc(doc(db, "content", "home")),
-          getDoc(doc(db, "content", "about")),
-          getDocs(query(collection(db, "services"))),
-          getDoc(doc(db, "content", "features")),
-          getDocs(query(collection(db, "gallery"), orderBy("publishedAt", "desc"), limit(4))),
-          getDocs(query(collection(db, "blogs"), orderBy("publishedAt", "desc"), limit(3)))
-        ]);
-
+        const homeSnap = await getDoc(doc(db, "content", "home"));
         if (homeSnap.exists()) setContent(homeSnap.data() as HomeContent);
-        if (aboutSnap.exists()) setAbout(aboutSnap.data() as AboutContent);
-        setServices(servicesSnap.docs.map(d => ({ id: d.id, ...d.data() } as ServiceItem)));
-        if (featuresSnap.exists()) setFeatures(featuresSnap.data() as FeaturesContent);
-        setGalleries(galleriesSnap.docs.map(d => ({ id: d.id, ...d.data() } as GalleryData)));
-        setBlogs(blogsSnap.docs.map(d => ({ id: d.id, ...d.data() } as BlogData)));
-
       } catch (err) {
         console.error("Failed to fetch home content", err);
-      } finally {
-        setLoading(false);
       }
+
+      try {
+        const aboutSnap = await getDoc(doc(db, "content", "about"));
+        if (aboutSnap.exists()) setAbout(aboutSnap.data() as AboutContent);
+      } catch (err) {
+        console.error("Failed to fetch about content", err);
+      }
+
+      try {
+        const servicesSnap = await getDocs(query(collection(db, "services")));
+        setServices(servicesSnap.docs.map(d => ({ id: d.id, ...d.data() } as ServiceItem)));
+      } catch (err) {
+        console.error("Failed to fetch services", err);
+      }
+
+      try {
+        const featuresSnap = await getDoc(doc(db, "content", "features"));
+        if (featuresSnap.exists()) setFeatures(featuresSnap.data() as FeaturesContent);
+      } catch (err) {
+        console.error("Failed to fetch features", err);
+      }
+
+      try {
+        const galleriesSnap = await getDocs(query(collection(db, "gallery"), orderBy("publishedAt", "desc"), limit(4)));
+        setGalleries(galleriesSnap.docs.map(d => ({ id: d.id, ...d.data() } as GalleryData)));
+      } catch (err) {
+        console.error("Failed to fetch galleries", err);
+      }
+
+      try {
+        const blogsSnap = await getDocs(query(collection(db, "blogs"), orderBy("publishedAt", "desc"), limit(3)));
+        setBlogs(blogsSnap.docs.map(d => ({ id: d.id, ...d.data() } as BlogData)));
+      } catch (err) {
+        console.error("Failed to fetch blogs", err);
+      }
+
+      setLoading(false);
     }
     loadData();
   }, []);

@@ -30,16 +30,18 @@ export default function BlogListContent() {
 
   useEffect(() => {
     const fetchData = async () => {
+      // Fetch independently so one failure doesn't break the other
       try {
-        const [settingsSnap, querySnapshot] = await Promise.all([
-          getDoc(doc(db, "content", "blog_page")),
-          getDocs(query(collection(db, "blogs"), orderBy("publishedAt", "desc")))
-        ]);
-
+        const settingsSnap = await getDoc(doc(db, "content", "blog_page"));
         if (settingsSnap.exists()) {
           setSettings(settingsSnap.data() as BlogSettings);
         }
+      } catch (error) {
+        console.error("Gagal mengambil pengaturan blog", error);
+      }
 
+      try {
+        const querySnapshot = await getDocs(query(collection(db, "blogs"), orderBy("publishedAt", "desc")));
         const data = querySnapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data()
@@ -47,9 +49,9 @@ export default function BlogListContent() {
         setBlogs(data);
       } catch (error) {
         console.error("Gagal mengambil data blog", error);
-      } finally {
-        setIsLoading(false);
       }
+
+      setIsLoading(false);
     };
     fetchData();
   }, []);

@@ -26,24 +26,25 @@ export default function ServicesContent() {
 
   useEffect(() => {
     async function loadData() {
+      // Fetch independently so one failure doesn't break the other
       try {
-        const [settingsSnap, servicesSnap] = await Promise.all([
-          getDoc(doc(db, "content", "services_page")),
-          getDocs(query(collection(db, "services")))
-        ]);
-
+        const settingsSnap = await getDoc(doc(db, "content", "services_page"));
         if (settingsSnap.exists()) {
           setSettings(settingsSnap.data() as ServicePageSettings);
         }
-        
+      } catch (err) {
+        console.error("Failed to fetch services page settings", err);
+      }
+
+      try {
+        const servicesSnap = await getDocs(query(collection(db, "services")));
         const fetchedServices = servicesSnap.docs.map(d => ({ id: d.id, ...d.data() } as ServiceItem));
         setServices(fetchedServices);
-
       } catch (err) {
-        console.error("Failed to fetch services content", err);
-      } finally {
-        setLoading(false);
+        console.error("Failed to fetch services list", err);
       }
+
+      setLoading(false);
     }
     loadData();
   }, []);
