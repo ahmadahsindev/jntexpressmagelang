@@ -32,10 +32,6 @@ export function Footer() {
     loadContacts();
   }, []);
 
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
   return (
     <footer className="bg-red-700 dark:bg-red-900 w-full py-12 px-6 flex flex-col items-center text-center gap-6 mt-auto">
       <div className="max-w-7xl mx-auto w-full grid grid-cols-1 md:grid-cols-3 gap-12 text-left text-white">
@@ -80,9 +76,15 @@ export function Footer() {
           <h4 className="text-lg font-bold mb-6 font-headline">Kontak Terpusat</h4>
           {contacts ? (
             <div className="text-white/80 font-inter font-light leading-relaxed mb-4 text-sm space-y-2">
-              <p><strong>Alamat:</strong> {contacts.address}</p>
-              <p><strong>Phone:</strong> {contacts.phone}</p>
-              <p><strong>Email:</strong> {contacts.email}</p>
+              {contacts.address && (
+                <p><strong>Alamat:</strong> {contacts.address}</p>
+              )}
+              {contacts.phone && (
+                <p><strong>Phone:</strong> {contacts.phone}</p>
+              )}
+              {contacts.email && (
+                <p><strong>Email:</strong> {contacts.email}</p>
+              )}
             </div>
           ) : (
              <div className="text-white/80 font-inter font-light leading-relaxed mb-4 text-sm space-y-2">
@@ -115,9 +117,6 @@ export function Footer() {
 
       <div className="max-w-7xl mx-auto w-full border-t border-white/10 mt-12 pt-8 flex flex-col md:flex-row items-center justify-between text-white/60 text-sm">
         <p>© {new Date().getFullYear()} J&T Express Magelang. All Rights Reserved.</p>
-        <button onClick={scrollToTop} className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-all group mt-4 md:mt-0">
-          <ArrowUp size={20} className="group-hover:-translate-y-1 transition-transform text-white" />
-        </button>
       </div>
     </footer>
   );

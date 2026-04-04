@@ -1,5 +1,7 @@
-import React, { forwardRef } from "react";
+import React, { forwardRef, useEffect, useState } from "react";
 import Barcode from "react-barcode";
+import { db } from "@/lib/firebase/config";
+import { doc, getDoc } from "firebase/firestore";
 
 export interface ReceiptData {
   receiptNumber: string;
@@ -36,6 +38,22 @@ interface PrintTemplateProps {
 
 export const PrintTemplate = forwardRef<HTMLDivElement, PrintTemplateProps>(
   ({ data }, ref) => {
+    const [contacts, setContacts] = useState<any>(null);
+
+    useEffect(() => {
+      async function loadContacts() {
+        try {
+          const snap = await getDoc(doc(db, "content", "contacts"));
+          if (snap.exists()) {
+            setContacts(snap.data());
+          }
+        } catch (err) {
+          console.error("Failed to fetch contacts", err);
+        }
+      }
+      loadContacts();
+    }, []);
+
     if (!data) return null;
 
     // Formatting date
@@ -71,8 +89,12 @@ export const PrintTemplate = forwardRef<HTMLDivElement, PrintTemplateProps>(
           </div>
           <div className="text-center flex-1">
             <h1 className="text-2xl font-black uppercase tracking-wide">J&T Express Magelang</h1>
-            <p className="text-xs mt-1">
-              Kontak: wa : 0811-234-5678 Telepon : 0811-234-5678 Alamat : Jl. Jenderal Sudirman No. 123, Magelang
+            <p className="text-[10px] mt-1 space-x-2">
+              <span>WA: {contacts?.phone || "0811-234-5678"}</span>
+              <span>•</span>
+              <span>Telepon: {contacts?.phone || "0811-234-5678"}</span>
+              <span>•</span>
+              <span className="block mt-0.5">Alamat: {contacts?.address || "Jl. Jenderal Sudirman No. 123, Magelang"}</span>
             </p>
           </div>
           <div className="flex flex-col items-end">

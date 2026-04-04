@@ -94,7 +94,6 @@ export default function ContactsPage() {
               <label className="font-bold text-on-surface text-sm">Alamat Email</label>
               <input 
                 type="email" 
-                required
                 className="w-full px-4 py-3 rounded-md bg-surface border border-border focus:border-primary focus:ring-1 focus:ring-primary transition-colors text-sm"
                 placeholder="cs@jntexpressmagelang.com"
                 value={email}

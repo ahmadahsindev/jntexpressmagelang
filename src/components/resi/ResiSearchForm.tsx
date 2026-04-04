@@ -40,7 +40,7 @@ export function ResiSearchForm({ initialValue = "", onSearch, isLoading = false 
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value.toUpperCase())}
         placeholder="Contoh: 37844537344611"
-        className="w-full pl-14 pr-28 md:pr-32 py-4 md:py-5 rounded-lg text-black font-bold text-lg bg-surface border-2 border-border focus:border-primary shadow-2xl transition-all outline-none"
+        className="w-full pl-14 pr-28 md:pr-32 py-4 md:py-5 rounded-lg text-black font-bold text-sm md:text-lg bg-surface border-2 border-border focus:border-primary shadow-2xl transition-all outline-none truncate"
         required
       />
       <button 

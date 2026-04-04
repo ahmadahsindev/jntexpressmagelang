@@ -26,7 +26,8 @@ export default function EditResiPage() {
   const [isFetching, setIsFetching] = useState(true);
   
   // Track Status Edit
-  const [newStatus, setNewStatus] = useState("");
+  const [newStatus, setNewStatus] = useState("SHIPPED");
+  const [newDescription, setNewDescription] = useState("");
   const [newLocation, setNewLocation] = useState("");
   
   // Full Receipt State mapped exactly to ReceiptData
@@ -56,11 +57,28 @@ export default function EditResiPage() {
     e.preventDefault();
     if (!receipt) return;
     setIsLoading(true);
+
+    let finalReceipt = receipt;
+    
+    // Auto-add pending log if user forgot to click "Tambah Log"
+    if (newDescription && newLocation) {
+      const newHistoryEntry = {
+        status: newStatus.toUpperCase(),
+        description: newDescription.toUpperCase(),
+        location: newLocation.toUpperCase(),
+        timestamp: new Date().toISOString()
+      };
+      finalReceipt = {
+        ...receipt,
+        statusHistory: [newHistoryEntry, ...receipt.statusHistory],
+        currentStatus: newHistoryEntry.status
+      };
+    }
     
     try {
       await updateDoc(doc(db, "receipts", id), {
-        ...receipt,
-        currentStatus: receipt.statusHistory[0]?.status || receipt.currentStatus
+        ...finalReceipt,
+        currentStatus: finalReceipt.statusHistory[0]?.status || finalReceipt.currentStatus
       });
       toast.success("Perubahan data resi berhasil disimpan");
       router.push("/dashboard/resi");
@@ -72,13 +90,14 @@ export default function EditResiPage() {
   };
 
   const handleAddStatus = () => {
-    if (!receipt || !newStatus || !newLocation) {
-      toast.error("Status dan Lokasi harus diisi");
+    if (!receipt || !newStatus || !newDescription || !newLocation) {
+      toast.error("Status, Deskripsi, dan Lokasi harus diisi");
       return;
     }
 
     const newHistoryEntry = {
       status: newStatus.toUpperCase(),
+      description: newDescription.toUpperCase(),
       location: newLocation.toUpperCase(),
       timestamp: new Date().toISOString()
     };
@@ -91,6 +110,16 @@ export default function EditResiPage() {
 
     setNewStatus("");
     setNewLocation("");
+  };
+
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'PENDING': return 'MASIH DIPROSES (PENDING)';
+      case 'SHIPPED': return 'SEDANG DIKIRIM (SHIPPED)';
+      case 'DELIVERED': return 'TERKIRIM (DELIVERED)';
+      case 'FAILED': return 'GAGAL KIRIM (FAILED)';
+      default: return status;
+    }
   };
 
   if (isFetching) return <div className="p-8">Memuat data resi...</div>;
@@ -123,10 +152,10 @@ export default function EditResiPage() {
         <div className="lg:col-span-8 flex flex-col gap-6">
           
           <div className="bg-surface-container-lowest p-6 rounded-xl border border-border shadow-sm">
-            <h3 className="text-lg font-bold font-headline border-b border-border pb-2 mb-4 text-primary">Informasi Pengiriman (AWB)</h3>
+            <h3 className="text-lg font-bold font-headline border-b border-border pb-2 mb-4 text-primary">Informasi Pengiriman</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="font-bold text-sm">Nomor Resi (AWB)</label>
+                <label className="font-bold text-sm">Nomor Resi</label>
                 <input required type="text" value={receipt.receiptNumber} onChange={e => setReceipt({...receipt, receiptNumber: e.target.value.toUpperCase()})} className="w-full px-4 py-2 border rounded-md" />
               </div>
               <div className="space-y-2 flex flex-col">
@@ -252,22 +281,36 @@ export default function EditResiPage() {
              {/* Add New Status */}
              <div className="bg-surface p-4 rounded-lg border border-border mb-6 space-y-3">
                <div>
-                 <label className="text-xs font-bold text-on-surface-variant uppercase">Pembaruan Status</label>
+                  <label className="text-xs font-bold text-on-surface-variant uppercase">Pembaruan Status</label>
+                  <Select value={newStatus} onValueChange={(v) => setNewStatus(v || "SHIPPED")}>
+                    <SelectTrigger className="w-full mt-1">
+                      <SelectValue placeholder="Pilih status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="PENDING">MASIH DIPROSES (PENDING)</SelectItem>
+                      <SelectItem value="SHIPPED">SEDANG DIKIRIM (SHIPPED)</SelectItem>
+                      <SelectItem value="DELIVERED">TERKIRIM (DELIVERED)</SelectItem>
+                      <SelectItem value="FAILED">GAGAL KIRIM (FAILED)</SelectItem>
+                    </SelectContent>
+                  </Select>
+               </div>
+               <div>
+                 <label className="text-xs font-bold text-on-surface-variant uppercase">Keterangan / Deskripsi STATUS</label>
                  <input 
                    type="text" 
-                   value={newStatus} 
-                   onChange={e => setNewStatus(e.target.value)} 
-                   placeholder="Contoh: PAKET DROP POINT..." 
+                   value={newDescription} 
+                   onChange={e => setNewDescription(e.target.value)} 
+                   placeholder="Contoh: PAKET TELAH SAMPAI" 
                    className="w-full mt-1 px-3 py-2 text-sm border rounded-md uppercase" 
                  />
                </div>
                <div>
-                 <label className="text-xs font-bold text-on-surface-variant uppercase">Lokasi Transit</label>
+                 <label className="text-xs font-bold text-on-surface-variant uppercase">Lokasi</label>
                  <input 
                    type="text" 
                    value={newLocation} 
                    onChange={e => setNewLocation(e.target.value)} 
-                   placeholder="Contoh: JAKARTA GATEWAY" 
+                   placeholder="Contoh: SEMARANG" 
                    className="w-full mt-1 px-3 py-2 text-sm border rounded-md uppercase" 
                  />
                </div>
@@ -284,14 +327,19 @@ export default function EditResiPage() {
              <div className="relative pl-6 border-l-2 border-outline-variant mt-2 space-y-6 py-2">
                  {receipt.statusHistory.map((history, idx) => (
                    <div key={idx} className="relative group">
-                     <div className={`absolute -left-[33px] w-4 h-4 rounded-full ring-4 ring-white ${idx === 0 ? 'bg-green-500' : 'bg-outline-variant'}`}></div>
+                     <div className={`absolute -left-8.25 w-4 h-4 rounded-full ring-4 ring-white ${idx === 0 ? 'bg-green-500' : 'bg-outline-variant'}`}></div>
                      <div>
                        <p className={`text-xs font-bold ${idx === 0 ? 'text-green-600' : 'text-on-surface-variant'}`}>
                          {new Date(history.timestamp).toLocaleString("id-ID")}
                        </p>
                        <p className="text-on-surface font-bold uppercase text-sm mt-0.5">
-                         {history.status}
+                         {getStatusLabel(history.status)}
                        </p>
+                       {history.description && (
+                         <p className="text-on-surface-variant text-xs mt-0.5">
+                           {history.description}
+                         </p>
+                       )}
                        <p className="text-primary font-bold text-xs mt-0.5 flex items-center gap-1 uppercase">
                          <MapPin size={12} /> {history.location}
                        </p>

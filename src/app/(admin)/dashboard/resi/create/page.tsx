@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function CreateResiPage() {
   const router = useRouter();
@@ -43,7 +44,8 @@ export default function CreateResiPage() {
   const [shippingCost, setShippingCost] = useState<number | undefined>(0);
 
   // Initial Status State
-  const [newStatus, setNewStatus] = useState("");
+  const [newStatus, setNewStatus] = useState("PENDING");
+  const [newDescription, setNewDescription] = useState("");
   const [newLocation, setNewLocation] = useState("MAGELANG");
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -52,8 +54,8 @@ export default function CreateResiPage() {
       toast.error("Silakan pilih tanggal");
       return;
     }
-    if (!newStatus || !newLocation) {
-      toast.error("Status dan Lokasi AWAL harus diisi");
+    if (!newStatus || !newDescription || !newLocation) {
+      toast.error("Status, Deskripsi, dan Lokasi AWAL harus diisi");
       return;
     }
     setIsLoading(true);
@@ -61,6 +63,7 @@ export default function CreateResiPage() {
     // Initial status
     const initialStatusObj = {
       status: newStatus.toUpperCase(),
+      description: newDescription.toUpperCase(),
       timestamp: date.toISOString(),
       location: newLocation.toUpperCase()
     };
@@ -122,10 +125,10 @@ export default function CreateResiPage() {
         
         {/* Info Utama */}
         <div className="bg-surface-container-lowest p-6 rounded-xl border border-border shadow-sm">
-          <h3 className="text-lg font-bold font-headline border-b border-border pb-2 mb-4 text-primary">Informasi Pengiriman (AWB)</h3>
+          <h3 className="text-lg font-bold font-headline border-b border-border pb-2 mb-4 text-primary">Informasi Pengiriman</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="font-bold text-sm">Nomor Resi (AWB)</label>
+              <label className="font-bold text-sm">Nomor Resi</label>
               <input required type="text" value={receiptNumber} onChange={e => setReceiptNumber(e.target.value)} className="w-full px-4 py-2 border rounded-md uppercase" placeholder="Contoh: 37844537344611" />
             </div>
             <div className="space-y-2 flex flex-col">
@@ -154,11 +157,25 @@ export default function CreateResiPage() {
             </div>
             <div className="space-y-2">
               <label className="font-bold text-sm">Kota Tujuan</label>
-              <input required type="text" value={destination} onChange={e => setDestination(e.target.value)} className="w-full px-4 py-2 border rounded-md uppercase" placeholder="KAB KARAWANG" />
+              <input required type="text" value={destination} onChange={e => setDestination(e.target.value)} className="w-full px-4 py-2 border rounded-md uppercase" placeholder="CONTOH: SEMARANG" />
             </div>
             <div className="space-y-2">
-              <label className="font-bold text-sm">Status Awal</label>
-              <input placeholder="CONTOH: PAKET SEDANG DIKIRIM" required type="text" value={newStatus} onChange={e => setNewStatus(e.target.value)} className="w-full px-4 py-2 border rounded-md uppercase" />
+              <label className="font-bold text-sm">Status Awal untuk Pelacakan</label>
+              <Select value={newStatus} onValueChange={(v) => setNewStatus(v || "PENDING")}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Pilih status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="PENDING">MASIH DIPROSES (PENDING)</SelectItem>
+                  <SelectItem value="SHIPPED">SEDANG DIKIRIM (SHIPPED)</SelectItem>
+                  <SelectItem value="DELIVERED">TERKIRIM (DELIVERED)</SelectItem>
+                  <SelectItem value="FAILED">GAGAL KIRIM (FAILED)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <label className="font-bold text-sm">Keterangan / Deskripsi untuk Status Pengiriman</label>
+              <input placeholder="CONTOH: PAKET SEDANG DIKIRIM" required type="text" value={newDescription} onChange={e => setNewDescription(e.target.value)} className="w-full px-4 py-2 border rounded-md uppercase" />
             </div>
           </div>
         </div>

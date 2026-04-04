@@ -10,10 +10,13 @@ import {
   Package,
   Star,
   Phone,
-  Search
+  Search,
+  Key
 } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { logoutUser } from "@/lib/firebase/auth";
+import { toast } from "sonner";
 
 import {
   Sidebar,
@@ -34,6 +37,7 @@ export function AppSidebar() {
   const mainNav = [
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
     { name: "Manajemen Resi", href: "/dashboard/resi", icon: Package },
+    { name: "Ganti Password", href: "/dashboard/change-password", icon: Key },
   ];
 
   const cmsNav = [
@@ -46,6 +50,18 @@ export function AppSidebar() {
     { name: "Blog", href: "/dashboard/cms/blog", icon: FileText },
     { name: "Kontak", href: "/dashboard/cms/contact", icon: Phone },
   ];
+
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    const { error } = await logoutUser();
+    if (error) {
+      toast.error("Gagal keluar: " + error);
+      return;
+    }
+    toast.success("Berhasil keluar!");
+    router.push("/login");
+  };
 
   return (
     <Sidebar collapsible="icon" className="border-none">
@@ -121,7 +137,7 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
              <SidebarMenuButton 
-               render={<Link href="/" />}
+               onClick={handleLogout}
                tooltip="Keluar Panel"
                className="flex items-center gap-3 px-3 py-6 rounded-xl text-white/70 hover:bg-white/10 hover:text-white transition-all duration-200"
              >

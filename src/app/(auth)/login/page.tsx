@@ -88,9 +88,6 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <div className="mt-8 text-center text-sm text-on-surface-variant">
-          Belum punya akses? <Link href="/signup" className="text-primary font-bold hover:underline">Daftar Admin</Link>
-        </div>
       </div>
     </div>
   );

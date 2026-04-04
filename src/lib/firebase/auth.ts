@@ -3,6 +3,7 @@ import {
   createUserWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
+  updatePassword,
   User
 } from "firebase/auth";
 import { auth } from "./config";
@@ -34,7 +35,17 @@ export const logoutUser = async () => {
   }
 };
 
-// Store observer wrapper (Optional, can be used inside Zustand or React Context)
+export const updateUserPassword = async (newPass: string) => {
+  try {
+    const user = auth.currentUser;
+    if (!user) throw new Error("Tidak ada user aktif");
+    await updatePassword(user, newPass);
+    return { error: null };
+  } catch (error: any) {
+    return { error: error.message };
+  }
+};
+
 export const subscribeToAuthChanges = (callback: (user: User | null) => void) => {
   return onAuthStateChanged(auth, callback);
 };
