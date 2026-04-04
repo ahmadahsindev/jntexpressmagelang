@@ -2,8 +2,8 @@
 
 import { useEffect, useState, useRef } from "react";
 import { db } from "@/lib/firebase/config";
-import { collection, getDocs, deleteDoc, doc, orderBy, query, addDoc } from "firebase/firestore";
-import { Plus, Trash2, ImagePlus, Loader2, Search } from "lucide-react";
+import { collection, getDocs, deleteDoc, doc, orderBy, query, addDoc, getDoc, setDoc } from "firebase/firestore";
+import { Plus, Trash2, ImagePlus, Loader2, Search, Save } from "lucide-react";
 import { toast } from "sonner";
 import { uploadToCloudinary } from "@/lib/cloudinary";
 import {
@@ -16,6 +16,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { AdminHeroManager } from "@/components/ui/admin-hero-manager";
 
 interface GalleryData {
   id: string;
@@ -26,7 +27,12 @@ interface GalleryData {
 
 export default function GalleryManagementPage() {
   const [galleries, setGalleries] = useState<GalleryData[]>([]);
+  const [bannerUrl, setBannerUrl] = useState("");
+  const [bannerTitle, setBannerTitle] = useState("");
+  const [bannerSubtitle, setBannerSubtitle] = useState("");
+  
   const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   
   // Upload State
@@ -41,8 +47,18 @@ export default function GalleryManagementPage() {
   const fetchGalleries = async () => {
     setIsLoading(true);
     try {
-      const q = query(collection(db, "gallery"), orderBy("publishedAt", "desc"));
-      const querySnapshot = await getDocs(q);
+      const [settingsSnap, querySnapshot] = await Promise.all([
+        getDoc(doc(db, "content", "gallery_page")),
+        getDocs(query(collection(db, "gallery"), orderBy("publishedAt", "desc")))
+      ]);
+
+      if (settingsSnap.exists()) {
+        const data = settingsSnap.data();
+        setBannerUrl(data.bannerUrl || "");
+        setBannerTitle(data.bannerTitle || "");
+        setBannerSubtitle(data.bannerSubtitle || "");
+      }
+
       const data = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
@@ -58,6 +74,25 @@ export default function GalleryManagementPage() {
   useEffect(() => {
     fetchGalleries();
   }, []);
+
+  const handlePageSave = async () => {
+    setIsSaving(true);
+    const toastId = toast.loading("Menyimpan pengaturan halaman...");
+    try {
+      const docRef = doc(db, "content", "gallery_page");
+      await setDoc(docRef, {
+        bannerUrl,
+        bannerTitle,
+        bannerSubtitle,
+        lastUpdated: new Date().toISOString()
+      }, { merge: true });
+      toast.success("Halaman galeri berhasil diperbarui!", { id: toastId });
+    } catch (err: any) {
+      toast.error("Gagal: " + err.message, { id: toastId });
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -125,7 +160,25 @@ export default function GalleryManagementPage() {
           <h1 className="text-3xl font-black font-headline text-on-surface">Manajemen Galeri</h1>
           <p className="text-on-surface-variant mt-1">Kelola foto dan gambar untuk ditampilkan di halaman publik</p>
         </div>
+        <button 
+          onClick={handlePageSave}
+          disabled={isSaving}
+          className="kinetic-authority-gradient text-white px-6 py-2.5 rounded-md font-bold tracking-wide shadow-md flex items-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-50"
+        >
+          <Save size={18} /> {isSaving ? "Menyimpan..." : "Simpan Perubahan"}
+        </button>
       </div>
+
+      <AdminHeroManager 
+        bannerUrl={bannerUrl}
+        bannerTitle={bannerTitle}
+        bannerSubtitle={bannerSubtitle}
+        onUrlChange={setBannerUrl}
+        onTitleChange={setBannerTitle}
+        onSubtitleChange={setBannerSubtitle}
+        collectionName="content"
+        docId="gallery_page"
+      />
 
       {/* Upload Section */}
       <div className="bg-surface-container-lowest border border-border rounded-xl shadow-sm p-6 grid grid-cols-1 md:grid-cols-2 gap-6 items-end">

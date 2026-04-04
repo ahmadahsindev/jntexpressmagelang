@@ -9,7 +9,8 @@ import {
   LogOut,
   Package,
   Star,
-  Phone
+  Phone,
+  Search
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -39,6 +40,7 @@ export function AppSidebar() {
     { name: "Home", href: "/dashboard/cms/home", icon: Home },
     { name: "Tentang Kami", href: "/dashboard/cms/about", icon: Info },
     { name: "Layanan", href: "/dashboard/cms/services", icon: Package },
+    { name: "Cek Resi", href: "/dashboard/cms/cek-resi", icon: Search },
     { name: "Keunggulan", href: "/dashboard/cms/features", icon: Star },
     { name: "Galeri", href: "/dashboard/cms/gallery", icon: ImageIcon },
     { name: "Blog", href: "/dashboard/cms/blog", icon: FileText },

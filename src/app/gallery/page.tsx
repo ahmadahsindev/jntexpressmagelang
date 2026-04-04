@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { PublicLayout } from "@/components/layout/PublicLayout";
+import { PublicHero } from "@/components/layout/PublicHero";
 import { db } from "@/lib/firebase/config";
-import { collection, getDocs, orderBy, query } from "firebase/firestore";
+import { collection, getDocs, orderBy, query, doc, getDoc } from "firebase/firestore";
 
 interface GalleryData {
   id: string;
@@ -12,16 +13,30 @@ interface GalleryData {
   publishedAt: string;
 }
 
+interface GallerySettings {
+  bannerUrl?: string;
+  bannerTitle?: string;
+  bannerSubtitle?: string;
+}
+
 export default function PublicGalleryPage() {
   const [galleries, setGalleries] = useState<GalleryData[]>([]);
+  const [settings, setSettings] = useState<GallerySettings | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchGalleries = async () => {
+    const fetchData = async () => {
       try {
-        const q = query(collection(db, "gallery"), orderBy("publishedAt", "desc"));
-        const snapshot = await getDocs(q);
-        const data = snapshot.docs.map(doc => ({
+        const [settingsSnap, querySnapshot] = await Promise.all([
+          getDoc(doc(db, "content", "gallery_page")),
+          getDocs(query(collection(db, "gallery"), orderBy("publishedAt", "desc")))
+        ]);
+
+        if (settingsSnap.exists()) {
+          setSettings(settingsSnap.data() as GallerySettings);
+        }
+
+        const data = querySnapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data()
         })) as GalleryData[];
@@ -33,31 +48,32 @@ export default function PublicGalleryPage() {
       }
     };
     
-    fetchGalleries();
+    fetchData();
   }, []);
+
+  if (isLoading) {
+    return (
+      <PublicLayout>
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent"></div>
+        </div>
+      </PublicLayout>
+    );
+  }
 
   return (
     <PublicLayout>
       <div className="bg-surface-container-lowest min-h-screen pb-24">
-        {/* Header Hero */}
-        <section className="bg-primary_container text-white py-16 px-6">
-          <div className="max-w-4xl mx-auto text-center space-y-4">
-            <h1 className="text-4xl md:text-5xl font-black font-headline tracking-tight uppercase">
-              Galeri Dokumentasi
-            </h1>
-            <p className="text-white/80 font-inter text-lg max-w-2xl mx-auto">
-              Lihat berbagai momen dan dokumentasi kegiatan pengiriman J&T Express area Magelang.
-            </p>
-          </div>
-        </section>
+        <PublicHero 
+          bannerUrl={settings?.bannerUrl}
+          bannerTitle={settings?.bannerTitle}
+          bannerSubtitle={settings?.bannerSubtitle}
+          fallbackTitle="Galeri Dokumentasi"
+        />
 
         {/* Gallery Grid */}
         <section className="max-w-7xl mx-auto px-6 mt-16">
-          {isLoading ? (
-            <div className="flex justify-center items-center py-24 text-on-surface-variant font-bold">
-              Memuat galeri...
-            </div>
-          ) : galleries.length === 0 ? (
+          {galleries.length === 0 ? (
              <div className="text-center py-24 border-2 border-dashed border-outline-variant rounded-2xl">
                <p className="text-xl font-bold text-on-surface-variant font-headline uppercase">Belum Ada Gambar</p>
                <p className="mt-2 text-on-surface-variant/80">Galeri dokumentasi akan segera diperbarui.</p>

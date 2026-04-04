@@ -33,9 +33,9 @@ export function Navbar() {
   const mobileLinks = [
     { name: "HOME", href: "/" },
     { name: "CEK RESI", href: "/cek-resi" },
-    { name: "TENTANG KAMI", href: "/#about" },
-    { name: "LAYANAN", href: "/#services" },
-    { name: "KEUNGGULAN", href: "/#features" },
+    { name: "TENTANG KAMI", href: "/about" },
+    { name: "LAYANAN", href: "/services" },
+    { name: "KEUNGGULAN", href: "/features" },
     { name: "GALERI", href: "/gallery" },
     { name: "BLOG", href: "/blog" },
   ];
@@ -59,9 +59,9 @@ export function Navbar() {
         <div className="hidden lg:flex items-center gap-6 xl:gap-8">
           <Link href="/" className={getLinkClass("/")}>HOME</Link>
           <Link href="/cek-resi" className={getLinkClass("/cek-resi")}>CEK RESI</Link>
-          <Link href="/#about" className="text-slate-700 dark:text-slate-300 font-headline text-sm font-bold tracking-tight hover:text-primary transition-colors duration-300">TENTANG KAMI</Link>
-          <Link href="/#services" className="text-slate-700 dark:text-slate-300 font-headline text-sm font-bold tracking-tight hover:text-primary transition-colors duration-300">LAYANAN</Link>
-          <Link href="/#features" className="text-slate-700 dark:text-slate-300 font-headline text-sm font-bold tracking-tight hover:text-primary transition-colors duration-300">KEUNGGULAN</Link>
+          <Link href="/about" className={getLinkClass("/about")}>TENTANG KAMI</Link>
+          <Link href="/services" className={getLinkClass("/services")}>LAYANAN</Link>
+          <Link href="/features" className={getLinkClass("/features")}>KEUNGGULAN</Link>
           <Link href="/gallery" className={getLinkClass("/gallery")}>GALERI</Link>
           <Link href="/blog" className={getLinkClass("/blog", false)}>BLOG</Link>
         </div>

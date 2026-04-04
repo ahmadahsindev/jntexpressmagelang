@@ -43,7 +43,11 @@ export default function HomeCMSPage() {
     try {
       const url = await uploadToCloudinary(file);
       setBannerUrl(url);
-      toast.success("Banner berhasil diunggah!", { id: toastId });
+      
+      // Auto-save banner to firestore
+      await setDoc(doc(db, "content", "home"), { bannerUrl: url }, { merge: true });
+      
+      toast.success("Banner berhasil diunggah & disimpan otomatis!", { id: toastId });
     } catch (err: any) {
       toast.error(err.message, { id: toastId });
     }
@@ -104,7 +108,7 @@ export default function HomeCMSPage() {
                </div>
              </div>
           ) : (
-             <label className="w-full h-64 rounded-xl bg-surface-container flex flex-col items-center justify-center text-on-surface-variant border-2 border-dashed border-border cursor-pointer hover:bg-surface-container-high transition-colors mb-4">
+              <label className="w-full h-64 rounded-xl bg-surface-container flex flex-col items-center justify-center text-on-surface-variant border-2 border-dashed border-border cursor-pointer hover:bg-surface-container-high transition-colors mb-4">
                 <ImagePlus size={32} className="mb-2" />
                 <span className="font-bold">Unggah Banner Baru</span>
                 <span className="text-xs mt-1">Maks. 5MB (Recomendasi 1920x1080)</span>

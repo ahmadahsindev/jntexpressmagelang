@@ -12,6 +12,7 @@ interface ContactsData {
   phone: string;
   facebook: string;
   instagram: string;
+  location: string;
 }
 
 export function Footer() {
@@ -90,13 +91,24 @@ export function Footer() {
           )}
         </div>
 
-        <div>
-          <h4 className="text-lg font-bold mb-6 font-headline">Navigasi Cepat</h4>
-          <div className="flex flex-col gap-3 text-sm">
-            <Link href="#contact" className="text-white/80 hover:text-white transition-opacity font-bold">Hubungi Kami</Link>
-            <Link href="#locations" className="text-white/80 hover:text-white transition-opacity">Lokasi Drop Point</Link>
-            <Link href="#terms" className="text-white/80 hover:text-white transition-opacity">Syarat & Ketentuan</Link>
-            <Link href="#faq" className="text-white/80 hover:text-white transition-opacity">FAQ</Link>
+        <div className="flex flex-col h-full">
+          <h4 className="text-lg font-bold mb-6 font-headline">Lokasi Kami</h4>
+          <div className="flex-1 w-full bg-surface-container rounded-xl overflow-hidden border border-white/10 min-h-[200px]">
+             {contacts?.location ? (
+               <iframe 
+                 src={contacts.location.includes('<iframe') ? (contacts.location.match(/src="([^"]+)"/) || [])[1] || contacts.location : contacts.location} 
+                 width="100%" 
+                 height="100%" 
+                 style={{ border: 0, minHeight: '200px' }} 
+                 allowFullScreen={true} 
+                 loading="lazy" 
+                 referrerPolicy="no-referrer-when-downgrade"
+               ></iframe>
+             ) : (
+               <div className="w-full h-full flex items-center justify-center text-sm text-white/50 p-4 font-inter text-center">
+                  Peta lokasi belum ditambahkan
+               </div>
+             )}
           </div>
         </div>
       </div>

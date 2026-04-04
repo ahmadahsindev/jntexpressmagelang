@@ -12,6 +12,7 @@ export default function ContactsPage() {
   const [address, setAddress] = useState("");
   const [facebook, setFacebook] = useState("");
   const [instagram, setInstagram] = useState("");
+  const [location, setLocation] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(true);
 
@@ -27,6 +28,7 @@ export default function ContactsPage() {
           setAddress(data.address || "");
           setFacebook(data.facebook || "");
           setInstagram(data.instagram || "");
+          setLocation(data.location || "");
         }
       } catch (error) {
         toast.error("Gagal mengambil data properti Kontak");
@@ -49,6 +51,7 @@ export default function ContactsPage() {
         address,
         facebook,
         instagram,
+        location,
         lastUpdated: new Date().toISOString()
       }, { merge: true });
       toast.success("Pengaturan berhasil disimpan!", { id: toastId });
@@ -119,7 +122,7 @@ export default function ContactsPage() {
 
         {/* Sosial Media */}
         <div className="space-y-4">
-          <h3 className="text-lg font-bold font-headline border-b border-border pb-2">Sosial Media URL</h3>
+          <h3 className="text-lg font-bold font-headline border-b border-border pb-2">Sosial Media URL & Maps</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <label className="font-bold text-on-surface text-sm">Facebook URL</label>
@@ -140,6 +143,17 @@ export default function ContactsPage() {
                 value={instagram}
                 onChange={e => setInstagram(e.target.value)}
               />
+            </div>
+            <div className="space-y-2 md:col-span-2">
+              <label className="font-bold text-on-surface text-sm">Lokasi Google Maps (URL / iFrame Embed URL)</label>
+              <input 
+                type="url" 
+                className="w-full px-4 py-3 rounded-md bg-surface border border-border focus:border-primary focus:ring-1 focus:ring-primary transition-colors text-sm"
+                placeholder="https://www.google.com/maps/embed?pb=..."
+                value={location}
+                onChange={e => setLocation(e.target.value)}
+              />
+              <p className="text-xs text-on-surface-variant mt-1">Gunakan URL Embed dari Google Maps untuk ditampilkan pada Footer.</p>
             </div>
           </div>
         </div>

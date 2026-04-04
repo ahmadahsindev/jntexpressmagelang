@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { db } from "@/lib/firebase/config";
-import { collection, getDocs, deleteDoc, doc, orderBy, query } from "firebase/firestore";
-import { Plus, Edit, Trash2, Search, ExternalLink } from "lucide-react";
+import { collection, getDocs, deleteDoc, doc, orderBy, query, getDoc, setDoc } from "firebase/firestore";
+import { Plus, Edit, Trash2, Search, ExternalLink, Save } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import {
@@ -16,6 +16,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { AdminHeroManager } from "@/components/ui/admin-hero-manager";
 
 interface BlogData {
   id: string;
@@ -29,7 +30,12 @@ interface BlogData {
 
 export default function BlogManagementPage() {
   const [blogs, setBlogs] = useState<BlogData[]>([]);
+  const [bannerUrl, setBannerUrl] = useState("");
+  const [bannerTitle, setBannerTitle] = useState("");
+  const [bannerSubtitle, setBannerSubtitle] = useState("");
+  
   const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -39,8 +45,18 @@ export default function BlogManagementPage() {
   const fetchBlogs = async () => {
     setIsLoading(true);
     try {
-      const q = query(collection(db, "blogs"), orderBy("publishedAt", "desc"));
-      const querySnapshot = await getDocs(q);
+      const [settingsSnap, querySnapshot] = await Promise.all([
+        getDoc(doc(db, "content", "blog_page")),
+        getDocs(query(collection(db, "blogs"), orderBy("publishedAt", "desc")))
+      ]);
+
+      if (settingsSnap.exists()) {
+        const data = settingsSnap.data();
+        setBannerUrl(data.bannerUrl || "");
+        setBannerTitle(data.bannerTitle || "");
+        setBannerSubtitle(data.bannerSubtitle || "");
+      }
+
       const data = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
@@ -56,6 +72,25 @@ export default function BlogManagementPage() {
   useEffect(() => {
     fetchBlogs();
   }, []);
+
+  const handlePageSave = async () => {
+    setIsSaving(true);
+    const toastId = toast.loading("Menyimpan pengaturan halaman...");
+    try {
+      const docRef = doc(db, "content", "blog_page");
+      await setDoc(docRef, {
+        bannerUrl,
+        bannerTitle,
+        bannerSubtitle,
+        lastUpdated: new Date().toISOString()
+      }, { merge: true });
+      toast.success("Halaman blog berhasil diperbarui!", { id: toastId });
+    } catch (err: any) {
+      toast.error("Gagal: " + err.message, { id: toastId });
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const handleDelete = async () => {
     if (!deleteId) return;
@@ -85,13 +120,34 @@ export default function BlogManagementPage() {
           <h1 className="text-3xl font-black font-headline text-on-surface">Manajemen Blog</h1>
           <p className="text-on-surface-variant mt-1">Kelola artikel, berita, dan informasi publik perusahaan</p>
         </div>
-        <Link 
-          href="/dashboard/cms/blog/create"
-          className="kinetic-authority-gradient text-white px-6 py-2.5 rounded-md font-bold tracking-wide shadow-md flex items-center gap-2 hover:opacity-90 transition-opacity"
-        >
-          <Plus size={18} /> Tulis Artikel Baru
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link 
+            href="/dashboard/cms/blog/create"
+            className="kinetic-authority-gradient text-white px-6 py-2.5 rounded-md font-bold tracking-wide shadow-md flex items-center gap-2 hover:opacity-90 transition-opacity"
+          >
+            <Plus size={18} /> Tulis Artikel Baru
+          </Link>
+          <button 
+            onClick={handlePageSave}
+            disabled={isSaving}
+            className="bg-surface-container-high border border-border text-on-surface px-6 py-2.5 rounded-md font-bold tracking-wide shadow-sm flex items-center gap-2 hover:bg-surface-container-highest transition-opacity disabled:opacity-50"
+          >
+            <Save size={18} /> {isSaving ? "Menyimpan..." : "Simpan Perubahan"}
+          </button>
+        </div>
       </div>
+
+      {/* Managed Hero Banner Component - Controlled by this page's state */}
+      <AdminHeroManager 
+        bannerUrl={bannerUrl}
+        bannerTitle={bannerTitle}
+        bannerSubtitle={bannerSubtitle}
+        onUrlChange={setBannerUrl}
+        onTitleChange={setBannerTitle}
+        onSubtitleChange={setBannerSubtitle}
+        collectionName="content"
+        docId="blog_page"
+      />
 
       <div className="bg-surface-container-lowest border border-border rounded-xl shadow-sm overflow-hidden">
         {/* Toolbar */}

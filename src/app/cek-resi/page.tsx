@@ -1,18 +1,31 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, Suspense } from "react";
 import { PublicLayout } from "@/components/layout/PublicLayout";
-import { Search, Printer, MapPin, CheckCircle2, ChevronRight, Download } from "lucide-react";
+import { PublicHero } from "@/components/layout/PublicHero";
+import { Printer, MapPin, CheckCircle2, ChevronRight, Search } from "lucide-react";
 import { db } from "@/lib/firebase/config";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { collection, query, where, getDocs, doc, getDoc } from "firebase/firestore";
 import { toast } from "sonner";
 import { useReactToPrint } from "react-to-print";
 import { PrintTemplate, ReceiptData } from "@/components/resi/PrintTemplate";
+import { ResiSearchForm } from "@/components/resi/ResiSearchForm";
+import { useSearchParams } from "next/navigation";
 
-export default function CekResiPage() {
-  const [searchQuery, setSearchQuery] = useState("");
+interface CekResiSettings {
+  bannerUrl?: string;
+  bannerTitle?: string;
+  bannerSubtitle?: string;
+}
+
+function CekResiContent() {
+  const searchParams = useSearchParams();
+  const qParams = searchParams.get("q");
+
   const [isLoading, setIsLoading] = useState(false);
+  const [isSettingsLoading, setIsSettingsLoading] = useState(true);
   const [receipt, setReceipt] = useState<ReceiptData | null>(null);
+  const [settings, setSettings] = useState<CekResiSettings | null>(null);
   
   const componentRef = useRef<HTMLDivElement>(null);
   const handlePrint = useReactToPrint({
@@ -20,22 +33,50 @@ export default function CekResiPage() {
     documentTitle: `Resi-${receipt?.receiptNumber || 'JNT'}`,
   });
 
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!searchQuery.trim()) return;
+  useEffect(() => {
+    async function fetchSettings() {
+      try {
+        const snap = await getDoc(doc(db, "content", "cekresi_page"));
+        if (snap.exists()) {
+          setSettings(snap.data() as CekResiSettings);
+        }
+      } catch (err) {
+        console.error("Failed to fetch cek resi settings", err);
+      } finally {
+        setIsSettingsLoading(false);
+      }
+    }
+    fetchSettings();
+  }, []);
+
+  useEffect(() => {
+    if (qParams) {
+      handleSearch(qParams.toUpperCase());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [qParams]);
+
+  if (isSettingsLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent"></div>
+      </div>
+    );
+  }
+
+  const handleSearch = async (queryText: string) => {
+    if (!queryText.trim()) return;
 
     setIsLoading(true);
     try {
       const q = query(
         collection(db, "receipts"),
-        where("receiptNumber", "==", searchQuery.trim())
+        where("receiptNumber", "==", queryText.trim().toUpperCase())
       );
       const querySnapshot = await getDocs(q);
 
       if (!querySnapshot.empty) {
          const docData = querySnapshot.docs[0].data() as ReceiptData;
-         // Sort history descending by default (newest first) but for timeline sometimes ascending is visually better.
-         // Let's sort descending so the newest status is at the top.
          const sortedHistory = [...(docData.statusHistory || [])].sort(
            (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
          );
@@ -71,42 +112,31 @@ export default function CekResiPage() {
   };
 
   return (
-    <PublicLayout>
-      <div className="bg-surface-container-lowest min-h-screen pb-24">
-        {/* Header Hero */}
-        <section className="bg-primary_container text-white py-16 px-6">
-          <div className="max-w-4xl mx-auto text-center space-y-4">
-             <h1 className="text-4xl font-black font-headline tracking-tight uppercase">Cek Resi & Lacak Paket</h1>
-             <p className="text-white/80 font-inter text-lg max-w-xl mx-auto">
-               Masukkan nomor resi J&T Express Magelang Anda untuk memantau status pengiriman secara real-time.
-             </p>
-             
-             {/* Search Bar */}
-             <form onSubmit={handleSearch} className="mt-8 relative max-w-2xl mx-auto flex items-center">
-               <div className="absolute left-4 text-primary">
-                 <Search size={24} />
-               </div>
-               <input 
-                 type="text" 
-                 value={searchQuery}
-                 onChange={(e) => setSearchQuery(e.target.value.toUpperCase())}
-                 placeholder="Contoh: 37844537344611"
-                 className="w-full pl-14 pr-32 py-5 rounded-lg text-black font-bold text-lg bg-white outline-none border-2 border-transparent focus:border-outline-variant shadow-2xl transition-all"
-               />
-               <button 
-                 type="submit"
-                 disabled={isLoading}
-                 className="absolute right-2 top-2 bottom-2 bg-primary hover:bg-red-800 text-white px-6 rounded-md font-bold transition-colors disabled:opacity-50"
-               >
-                 {isLoading ? "Mencari..." : "Lacak"}
-               </button>
-             </form>
+    <>
+      <div className="bg-surface-container-lowest min-h-[50vh]">
+        {/* Full Width Hero */}
+        <PublicHero 
+          bannerUrl={settings?.bannerUrl}
+          bannerTitle={settings?.bannerTitle}
+          bannerSubtitle={settings?.bannerSubtitle}
+          fallbackTitle="Cek Resi & Lacak Paket"
+        />
+
+        {/* Search Bar - Overlapping Hero or just below */}
+        <div className="mt-16 pb-24 max-w-4xl mx-auto px-6 -mt-16 relative z-20 mb-16">
+          <div className="bg-white rounded-2xl shadow-2xl p-6 md:p-8 border border-border/50">
+             <div className="text-center mb-6">
+               <p className="text-on-surface-variant font-inter font-medium text-sm md:text-base">
+                 Masukkan nomor resi J&T Express Magelang Anda.
+               </p>
+             </div>
+             <ResiSearchForm initialValue={qParams || ""} onSearch={handleSearch} isLoading={isLoading} />
           </div>
-        </section>
+        </div>
 
         {/* Results Level */}
         {receipt && (
-          <section className="max-w-6xl mx-auto px-6 mt-12 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          <section className="max-w-6xl mx-auto px-6 pb-24 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             
             {/* Left Col: Shipment Info */}
             <div className="lg:col-span-7 space-y-6">
@@ -244,28 +274,26 @@ export default function CekResiPage() {
           </section>
         )}
 
-        {/* Empty State / Placeholder */}
-        {!receipt && !isLoading && (
-          <section className="max-w-4xl mx-auto px-6 mt-16 text-center">
-            <div className="bg-white p-12 rounded-3xl shadow-sm border border-outline-variant/30 max-w-2xl mx-auto space-y-6">
-              <div className="w-24 h-24 bg-primary/10 text-primary flex items-center justify-center rounded-full mx-auto">
-                 <Search size={48} />
-              </div>
-              <h2 className="text-2xl font-black font-headline uppercase text-on-surface">Lacak Paket Pengiriman</h2>
-              <p className="text-on-surface-variant font-medium text-lg leading-relaxed">
-                Silahkan masukkan nomor resi pada kolom pencarian di atas untuk memantau status pengiriman paket Anda.
-              </p>
-            </div>
-          </section>
-        )}
-
       </div>
       
       {/* Hidden Print Wrapper */}
       <div className="hidden">
         <PrintTemplate ref={componentRef} data={receipt} />
       </div>
+    </>
+  );
+}
 
+export default function CekResiPage() {
+  return (
+    <PublicLayout>
+      <Suspense fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent"></div>
+        </div>
+      }>
+        <CekResiContent />
+      </Suspense>
     </PublicLayout>
   );
 }
