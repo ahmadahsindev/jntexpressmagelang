@@ -3,9 +3,10 @@
 import { useEffect, useState, useRef } from "react";
 import { db } from "@/lib/firebase/config";
 import { collection, getDocs, deleteDoc, doc, orderBy, query, addDoc, getDoc, setDoc } from "firebase/firestore";
-import { Plus, Trash2, ImagePlus, Loader2, Search, Save } from "lucide-react";
+import { Plus, Trash2, ImagePlus, Loader2, Search, Save, Edit } from "lucide-react";
 import { toast } from "sonner";
 import { uploadToCloudinary } from "@/lib/cloudinary";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -43,6 +44,11 @@ export default function GalleryManagementPage() {
   // Delete State
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Edit State
+  const [editId, setEditId] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
 
   const fetchGalleries = async () => {
     setIsLoading(true);
@@ -146,6 +152,21 @@ export default function GalleryManagementPage() {
       toast.error("Gagal menghapus gambar");
     } finally {
       setIsDeleting(false);
+    }
+  };
+
+  const handleEditSubmit = async () => {
+    if (!editId) return;
+    setIsEditing(true);
+    try {
+       await setDoc(doc(db, "gallery", editId), { title: editTitle }, { merge: true });
+       setGalleries(galleries.map(g => g.id === editId ? { ...g, title: editTitle } : g));
+       setEditId(null);
+       toast.success("Judul gambar berhasil diperbarui");
+    } catch (e) {
+       toast.error("Gagal memperbarui judul");
+    } finally {
+       setIsEditing(false);
     }
   };
 
@@ -254,23 +275,22 @@ export default function GalleryManagementPage() {
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
-                    
-                    {/* Delete Button (Visible on Hover) */}
-                    <button 
-                      onClick={() => setDeleteId(item.id)}
-                      className="absolute top-3 right-3 p-2 bg-white/90 text-red-600 rounded-full shadow-sm opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50"
-                      title="Hapus Gambar"
-                    >
-                      <Trash2 size={16} />
-                    </button>
                   </div>
-                  <div className="p-3">
-                    <p className="text-sm font-bold text-on-surface truncate" title={item.title || "Tanpa Judul"}>
-                      {item.title || <span className="text-on-surface-variant font-normal italic">Tanpa Judul</span>}
-                    </p>
-                    <p className="text-xs text-on-surface-variant mt-1">
-                      {new Date(item.publishedAt).toLocaleDateString('id-ID', { year: 'numeric', month: 'short', day: 'numeric' })}
-                    </p>
+                  <div className="p-4">
+                    <div className="flex items-start justify-between gap-2">
+                       <div className="flex-1 min-w-0">
+                         <p className="text-sm font-bold text-on-surface truncate" title={item.title || "Tanpa Judul"}>
+                           {item.title || <span className="text-on-surface-variant font-normal italic">Tanpa Judul</span>}
+                         </p>
+                         <p className="text-xs text-on-surface-variant mt-1.5">
+                           {new Date(item.publishedAt).toLocaleDateString('id-ID', { year: 'numeric', month: 'short', day: 'numeric' })}
+                         </p>
+                       </div>
+                       <div className="flex gap-1 shrink-0">
+                         <button onClick={() => { setEditId(item.id); setEditTitle(item.title || ""); }} className="text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-md p-1.5" title="Edit Judul"><Edit size={14} /></button>
+                         <button onClick={() => setDeleteId(item.id)} className="text-red-600 bg-red-50 hover:bg-red-100 rounded-md p-1.5" title="Hapus"><Trash2 size={14} /></button>
+                       </div>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -302,6 +322,43 @@ export default function GalleryManagementPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Edit Form Dialog */}
+      <Dialog open={!!editId} onOpenChange={(open) => !open && setEditId(null)}>
+        <DialogContent>
+           <DialogHeader>
+             <DialogTitle>Edit Judul Gambar</DialogTitle>
+           </DialogHeader>
+           <div className="space-y-4 py-4">
+             <div>
+               <label className="font-bold text-sm block mb-1">Judul Gambar</label>
+               <input 
+                 type="text" 
+                 value={editTitle} 
+                 onChange={e => setEditTitle(e.target.value)} 
+                 className="w-full px-4 py-2 border border-border rounded-md text-sm outline-none focus:ring-1 focus:ring-primary focus:border-primary" 
+                 placeholder="Masukkan judul (opsional)" 
+               />
+             </div>
+           </div>
+           <DialogFooter>
+              <button 
+                onClick={() => setEditId(null)} 
+                className="px-4 py-2 border border-border text-on-surface rounded-md font-bold text-sm hover:bg-surface-container-high transition-colors"
+                disabled={isEditing}
+              >
+                Batal
+              </button>
+              <button 
+                onClick={handleEditSubmit} 
+                className="px-4 py-2 bg-primary text-white rounded-md font-bold text-sm hover:opacity-90 transition-opacity flex items-center gap-2"
+                disabled={isEditing}
+              >
+                {isEditing ? "Menyimpan..." : "Simpan Perubahan"}
+              </button>
+           </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

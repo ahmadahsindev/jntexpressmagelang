@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { db } from "@/lib/firebase/config";
 import { collection, getDocs, deleteDoc, doc, orderBy, query } from "firebase/firestore";
-import { Plus, Edit, Trash2, Printer, Search } from "lucide-react";
+import { Plus, Edit, Trash2, Printer, Search, Copy } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { PrintTemplate, ReceiptData } from "@/components/resi/PrintTemplate";
@@ -161,7 +161,19 @@ export default function ResiManagementPage() {
                 filteredReceipts.map((receipt) => (
                   <tr key={receipt.id} className="hover:bg-surface transition-colors cursor-default">
                     <td className="px-6 py-4">
-                      <div className="font-black text-primary">{receipt.receiptNumber}</div>
+                      <button 
+                        onClick={() => {
+                          if (navigator.clipboard) {
+                            navigator.clipboard.writeText(receipt.receiptNumber);
+                            toast.success(`No. Resi disalin: ${receipt.receiptNumber}`);
+                          }
+                        }}
+                        className="font-black text-primary hover:text-primary/80 transition-colors bg-transparent border-none p-0 cursor-pointer text-left flex items-center gap-2 group/copy"
+                        title="Klik untuk menyalin"
+                      >
+                        {receipt.receiptNumber}
+                        <Copy size={14} className="opacity-0 group-hover/copy:opacity-100 transition-opacity text-on-surface-variant" />
+                      </button>
                     </td>
                     <td className="px-6 py-4 font-inter">
                       {new Date(receipt.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
@@ -178,6 +190,7 @@ export default function ResiManagementPage() {
                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide border
                          ${receipt.currentStatus === 'DELIVERED' || receipt.currentStatus === 'TERKIRIM' ? 'bg-green-100 text-green-700 border-green-200' : 
                            receipt.currentStatus === 'FAILED' ? 'bg-red-100 text-red-700 border-red-200' :
+                           receipt.currentStatus === 'PENDING' ? 'bg-yellow-100 text-yellow-700 border-yellow-200' :
                            'bg-blue-50 text-blue-700 border-blue-200'}
                        `}>
                          {getStatusLabel(receipt.currentStatus)}

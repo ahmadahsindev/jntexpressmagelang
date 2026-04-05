@@ -190,11 +190,11 @@ export default function CreateResiPage() {
             </div>
             <div className="space-y-2">
               <label className="font-bold text-sm">Berat (Kg)</label>
-              <input required type="number" min="0.1" step="0.1" value={weight} onChange={e => setWeight(Number(e.target.value))} className="w-full px-4 py-2 border rounded-md" />
+              <input required type="number" min="0" step="any" value={weight} onChange={e => setWeight(Number(e.target.value))} className="w-full px-4 py-2 border rounded-md" />
             </div>
             <div className="space-y-2">
               <label className="font-bold text-sm">Berat Volume</label>
-              <input required type="number" min="0.1" step="0.1" value={volumeWeight} onChange={e => setVolumeWeight(Number(e.target.value))} className="w-full px-4 py-2 border rounded-md" />
+              <input required type="number" min="0" step="any" value={volumeWeight} onChange={e => setVolumeWeight(Number(e.target.value))} className="w-full px-4 py-2 border rounded-md" />
             </div>
             <div className="space-y-2">
               <label className="font-bold text-sm">Biaya Kirim (Rp)</label>

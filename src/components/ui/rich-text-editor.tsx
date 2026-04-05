@@ -3,7 +3,8 @@
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
-import { Bold, Italic, Heading2, List, ListOrdered, ImageIcon } from 'lucide-react';
+import LinkExtension from '@tiptap/extension-link';
+import { Bold, Italic, Heading2, List, ListOrdered, ImageIcon, LinkIcon } from 'lucide-react';
 import { uploadToCloudinary } from '@/lib/cloudinary';
 import { toast } from 'sonner';
 
@@ -22,6 +23,12 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
         allowBase64: true,
         HTMLAttributes: {
           class: 'rounded-md w-full max-w-full my-4 shadow-sm border border-border inline-block',
+        },
+      }),
+      LinkExtension.configure({
+        openOnClick: false,
+        HTMLAttributes: {
+          class: 'text-primary underline cursor-pointer hover:text-primary/80',
         },
       }),
     ],
@@ -57,6 +64,25 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
       }
     };
     input.click();
+  };
+
+  const toggleLink = () => {
+    const previousUrl = editor.getAttributes('link').href;
+    const url = window.prompt('URL', previousUrl);
+
+    // cancelled
+    if (url === null) {
+      return;
+    }
+
+    // empty
+    if (url === '') {
+      editor.chain().focus().extendMarkRange('link').unsetLink().run();
+      return;
+    }
+
+    // update link
+    editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
   };
 
   return (
@@ -98,6 +124,13 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
           className={`p-2 rounded-sm transition-colors ${editor.isActive('orderedList') ? 'bg-primary/10 text-primary' : 'hover:bg-surface-container-high text-on-surface-variant'}`}
         >
           <ListOrdered size={16} />
+        </button>
+        <button
+          type="button"
+          onClick={toggleLink}
+          className={`p-2 rounded-sm transition-colors ${editor.isActive('link') ? 'bg-primary/10 text-primary' : 'hover:bg-surface-container-high text-on-surface-variant'}`}
+        >
+          <LinkIcon size={16} />
         </button>
         <div className="w-px h-6 bg-border mx-1 my-auto"></div>
         <button

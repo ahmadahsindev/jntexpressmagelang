@@ -217,18 +217,20 @@ export default function ServicesCMSPage() {
                   <div key={service.id} className="bg-white border border-border rounded-xl shadow-sm overflow-hidden flex flex-col group">
                     <div className="w-full aspect-video md:aspect-4/3 bg-surface-container relative">
                        <img src={service.imageUrl} alt={service.title} className="w-full h-full object-cover" />
-                       <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                         <button onClick={() => openEditDialog(service)} className="p-2 bg-white rounded-md text-slate-800 hover:text-primary shadow-sm" title="Edit">
-                            <Edit size={18} />
-                         </button>
-                         <button onClick={() => setDeleteId(service.id)} className="p-2 bg-white rounded-md text-slate-800 hover:text-red-600 shadow-sm" title="Delete">
-                            <Trash2 size={18} />
-                         </button>
-                       </div>
                     </div>
                     <div className="p-4 flex-1 flex flex-col">
-                      <h4 className="font-black font-headline text-lg line-clamp-2 md:truncate">{service.title}</h4>
-                      <div className="text-sm text-on-surface-variant mt-2 line-clamp-3 font-inter prose prose-sm prose-p:-mt-1" dangerouslySetInnerHTML={{ __html: service.content }}></div>
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <h4 className="font-black font-headline text-lg line-clamp-2 md:truncate flex-1">{service.title}</h4>
+                        <div className="flex items-center gap-1">
+                          <button onClick={() => openEditDialog(service)} className="p-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-md transition-colors" title="Edit">
+                            <Edit size={16} />
+                          </button>
+                          <button onClick={() => setDeleteId(service.id)} className="p-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-md transition-colors" title="Delete">
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </div>
+                      <div className="text-sm text-on-surface-variant line-clamp-3 font-inter prose prose-sm prose-p:-mt-1" dangerouslySetInnerHTML={{ __html: service.content }}></div>
                     </div>
                   </div>
                 ))}

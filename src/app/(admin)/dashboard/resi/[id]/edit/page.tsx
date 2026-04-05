@@ -39,7 +39,9 @@ export default function EditResiPage() {
         const docRef = doc(db, "receipts", id);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          setReceipt(docSnap.data() as ReceiptData);
+          const data = docSnap.data() as ReceiptData;
+          setReceipt(data);
+          setNewStatus(data.currentStatus || "SHIPPED");
         } else {
           toast.error("Resi tidak ditemukan");
           router.push("/dashboard/resi");
@@ -60,8 +62,12 @@ export default function EditResiPage() {
 
     let finalReceipt = receipt;
     
-    // Auto-add pending log if user forgot to click "Tambah Log"
-    if (newDescription && newLocation) {
+    const currentTopStatus = receipt.statusHistory[0]?.status;
+    const isStatusChanged = newStatus && newStatus !== currentTopStatus;
+    const isDescriptionFilled = newDescription.trim() !== "";
+    const isLocationFilled = newLocation.trim() !== "";
+    
+    if (isStatusChanged || isDescriptionFilled || isLocationFilled) {
       const newHistoryEntry = {
         status: newStatus.toUpperCase(),
         description: newDescription.toUpperCase(),
@@ -90,8 +96,8 @@ export default function EditResiPage() {
   };
 
   const handleAddStatus = () => {
-    if (!receipt || !newStatus || !newDescription || !newLocation) {
-      toast.error("Status, Deskripsi, dan Lokasi harus diisi");
+    if (!receipt || !newStatus) {
+      toast.error("Status harus dipilih");
       return;
     }
 
@@ -108,7 +114,8 @@ export default function EditResiPage() {
       currentStatus: newHistoryEntry.status
     });
 
-    setNewStatus("");
+    setNewStatus(newHistoryEntry.status);
+    setNewDescription("");
     setNewLocation("");
   };
 
@@ -199,11 +206,11 @@ export default function EditResiPage() {
               </div>
               <div className="space-y-2">
                 <label className="font-bold text-sm">Berat (Kg)</label>
-                <input required type="number" min="0.1" step="0.1" value={receipt.weight} onChange={e => setReceipt({...receipt, weight: Number(e.target.value)})} className="w-full px-4 py-2 border rounded-md" />
+                <input required type="number" min="0" step="any" value={receipt.weight} onChange={e => setReceipt({...receipt, weight: Number(e.target.value)})} className="w-full px-4 py-2 border rounded-md" />
               </div>
                <div className="space-y-2">
                 <label className="font-bold text-sm">Berat Volume</label>
-                <input required type="number" min="0.1" step="0.1" value={receipt.volumeWeight} onChange={e => setReceipt({...receipt, volumeWeight: Number(e.target.value)})} className="w-full px-4 py-2 border rounded-md" />
+                <input required type="number" min="0" step="any" value={receipt.volumeWeight} onChange={e => setReceipt({...receipt, volumeWeight: Number(e.target.value)})} className="w-full px-4 py-2 border rounded-md" />
               </div>
               <div className="space-y-2">
                 <label className="font-bold text-sm">Biaya Kirim (Rp)</label>
@@ -301,7 +308,7 @@ export default function EditResiPage() {
                    value={newDescription} 
                    onChange={e => setNewDescription(e.target.value)} 
                    placeholder="Contoh: PAKET TELAH SAMPAI" 
-                   className="w-full mt-1 px-3 py-2 text-sm border rounded-md uppercase" 
+                   className="w-full mt-1 px-3 py-2 text-sm border rounded-md uppercase"
                  />
                </div>
                <div>
@@ -311,7 +318,7 @@ export default function EditResiPage() {
                    value={newLocation} 
                    onChange={e => setNewLocation(e.target.value)} 
                    placeholder="Contoh: SEMARANG" 
-                   className="w-full mt-1 px-3 py-2 text-sm border rounded-md uppercase" 
+                   className="w-full mt-1 px-3 py-2 text-sm border rounded-md uppercase"
                  />
                </div>
                <button 
@@ -340,9 +347,11 @@ export default function EditResiPage() {
                            {history.description}
                          </p>
                        )}
-                       <p className="text-primary font-bold text-xs mt-0.5 flex items-center gap-1 uppercase">
-                         <MapPin size={12} /> {history.location}
-                       </p>
+                       {history.location && (
+                         <p className="text-primary font-bold text-xs mt-0.5 flex items-center gap-1 uppercase">
+                           <MapPin size={12} /> {history.location}
+                         </p>
+                       )}
                      </div>
                    </div>
                  ))}

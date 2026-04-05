@@ -169,6 +169,16 @@ export default function HomePageContent() {
       {/* Spacer for Floating Component */}
       <div className="h-32 md:h-24 bg-surface-container-lowest"></div>
 
+      {/* Loading State Spinner */}
+      {loading && (
+        <section className="py-20 bg-surface-container-lowest flex justify-center items-center min-h-[400px]">
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-on-surface-variant font-medium animate-pulse">Memuat konten halaman...</p>
+          </div>
+        </section>
+      )}
+
       {/* 2. About Section */}
       {(about?.history || about?.visionMission || about?.values) && (
         <section className="py-20 bg-surface-container-lowest">

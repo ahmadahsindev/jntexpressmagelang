@@ -278,9 +278,11 @@ function CekResiContent() {
                            {history.description}
                          </p>
                        )}
-                       <p className="text-primary font-bold text-sm mt-1 uppercase flex items-center gap-1">
-                         <MapPin size={14} /> {history.location}
-                       </p>
+                       {history.location && (
+                         <p className="text-primary font-bold text-sm mt-1 uppercase flex items-center gap-1">
+                           <MapPin size={14} /> {history.location}
+                         </p>
+                       )}
                      </div>
                    </div>
                  ))}
