@@ -3,6 +3,58 @@
 @import "shadcn/tailwind.css";
 @plugin "@tailwindcss/typography";
 
+/*
+ * Critical CSS Fallback
+ * These styles ensure basic readability if Tailwind v4's modern CSS
+ * features (e.g. @property, color-mix, cascade layers) fail to parse.
+ * Tailwind v4 requires: Chrome 111+, Safari 16.4+, Firefox 128+.
+ */
+@supports not (color: color-mix(in srgb, red 50%, blue)) {
+  :root {
+    --fallback-active: 1;
+  }
+  html, body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif !important;
+    background-color: #f8f9fa !important;
+    color: #191c1d !important;
+    margin: 0;
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  header {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 50 !important;
+    background-color: #ffffff !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+    height: 64px !important;
+    display: flex !important;
+    align-items: center !important;
+  }
+  main {
+    padding-top: 64px !important;
+  }
+  footer {
+    background-color: #bb0013 !important;
+    color: #ffffff !important;
+    padding: 3rem 1.5rem !important;
+  }
+  a {
+    color: #bb0013 !important;
+    text-decoration: none !important;
+  }
+  img {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+  .kinetic-authority-gradient {
+    background: linear-gradient(180deg, #bb0013 0%, #e71520 100%) !important;
+  }
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {

@@ -98,6 +98,25 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="id" className="min-h-screen scroll-smooth" data-scroll-behavior="smooth" suppressHydrationWarning>
+      <head>
+        {/* Inline critical CSS as safety net for CSS loading failures */}
+        <style dangerouslySetInnerHTML={{ __html: `
+          html, body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+          }
+          body {
+            background-color: #f8f9fa;
+            color: #191c1d;
+            display: flex;
+            flex-direction: column;
+          }
+        `}} />
+      </head>
       <body className={`${inter.variable} ${manrope.variable} min-h-screen flex flex-col font-sans antialiased`} suppressHydrationWarning>
         <RouteChangeWatcher>
           {children}
